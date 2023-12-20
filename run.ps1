@@ -44,11 +44,20 @@ if (-not $toolset) {
     throw "toolset not available"
 }
 
+$cachePath="../cache"
+if (!(Test-Path -Path $cachePath -PathType Container)) {
+    mkdir $cachePath
+}
+
 Write-Output "Install PHP SDK ..."
 
-$temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
-$url = "https://github.com/php/php-sdk-binary-tools/archive/refs/heads/master.zip"
-Invoke-WebRequest $url -OutFile $temp
+#$temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
+$temp="$cachePath\php-sdk.zip"
+if (!(Test-Path -Path $temp -PathType Leaf)) {
+  $url = "https://github.com/php/php-sdk-binary-tools/archive/refs/heads/master.zip"
+  Invoke-WebRequest $url -OutFile $temp
+}
+
 Expand-Archive $temp -DestinationPath "."
 Rename-Item "php-sdk-binary-tools-master" "php-sdk"
 
@@ -80,18 +89,26 @@ $tspart = if ($ts -eq "nts") {"nts-Win32"} else {"Win32"}
 
 Write-Output "Install PHP $phpversion ..."
 
-$temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
+#$temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
 $fname = "php-$phpversion-$tspart-$vs-$arch.zip"
-$url = "$baseurl/$fname"
-Invoke-WebRequest $url -OutFile $temp
+$temp="$cachePath\$fname"
+if (!(Test-Path -Path $temp -PathType Leaf)) {
+  $url = "$baseurl/$fname"
+  Invoke-WebRequest $url -OutFile $temp
+}
+
 Expand-Archive $temp "php-bin"
 
 Write-Output "Install development pack ..."
 
-$temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
+#$temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
 $fname = "php-devel-pack-$phpversion-$tspart-$vs-$arch.zip"
-$url = "$baseurl/$fname"
-Invoke-WebRequest $url -OutFile $temp
+$temp="$cachePath\$fname"
+if (!(Test-Path -Path $temp -PathType Leaf)) {
+  $url = "$baseurl/$fname"
+  Invoke-WebRequest $url -OutFile $temp
+}
+
 Expand-Archive $temp "."
 Rename-Item "php-$phpversion-devel-$vs-$arch" "php-dev"
 
@@ -105,7 +122,10 @@ if ($deps.Count -gt 0) {
             if ($line -match "^$dep") {
                 Write-Output "Install $line"
                 $temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
+                $temp="$cachePath\$vs\$arch\$line"
+                if (!(Test-Path -Path $temp -PathType Leaf)) {
                 Invoke-WebRequest "$baseurl/$vs/$arch/$line" -OutFile $temp
+                }
                 Expand-Archive $temp "../deps"
                 $installed = $true
                 break

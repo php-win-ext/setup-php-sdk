@@ -123,6 +123,9 @@ if ($deps.Count -gt 0) {
                 Write-Output "Install $line"
                 $temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
                 $temp="$cachePath\$vs\$arch\$line"
+                if (!(Test-Path -Path "$cachePath\$vs\$arch" -PathType Container)) {
+                    mkdir "$cachePath\$vs\$arch"
+                }
                 if (!(Test-Path -Path $temp -PathType Leaf)) {
                 Invoke-WebRequest "$baseurl/$vs/$arch/$line" -OutFile $temp
                 }

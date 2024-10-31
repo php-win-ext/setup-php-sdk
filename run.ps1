@@ -47,12 +47,20 @@ if (-not $toolset) {
     throw "no suitable toolset available on this runner"
 }
 
+$cachePath="../cache"
+if (!(Test-Path -Path $cachePath -PathType Container)) {
+    mkdir $cachePath
+}
+
 if (-not (Test-Path "php-sdk")) {
     Write-Output "Install PHP SDK ..."
 
-    $temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
-    $url = "https://github.com/php/php-sdk-binary-tools/releases/download/php-sdk-2.3.0/php-sdk-binary-tools-php-sdk-2.3.0.zip"
-    Invoke-WebRequest $url -OutFile $temp
+    #$temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
+    $temp="$cachePath\php-sdk.zip";
+    if (!(Test-Path -Path $temp -PathType Leaf)) {
+        $url = "https://github.com/php/php-sdk-binary-tools/releases/download/php-sdk-2.3.0/php-sdk-binary-tools-php-sdk-2.3.0.zip"
+        Invoke-WebRequest $url -OutFile $temp
+    }
     Expand-Archive $temp -DestinationPath "."
     Rename-Item "php-sdk-binary-tools-php-sdk-2.3.0" "php-sdk"
 }
@@ -62,22 +70,28 @@ $tspart = if ($ts -eq "nts") {"nts-Win32"} else {"Win32"}
 if (-not (Test-path "php-bin")) {
     Write-Output "Install PHP $revision ..."
 
-    $temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
+    #$temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
+    $temp="$cachePath\$fname"
     $fname = "php-$revision-$tspart-$vs-$arch.zip"
-    $url = "$baseurl/$fname"
-    Write-Output "Downloading $url ..."
-    Invoke-WebRequest $url -OutFile $temp
+    if (!(Test-Path -Path $temp -PathType Leaf)) {
+        $url = "$baseurl/$fname"
+        Write-Output "Downloading $url ..."
+        Invoke-WebRequest $url -OutFile $temp
+    }
     Expand-Archive $temp "php-bin"
 }
 
 if (-not (Test-Path "php-dev")) {
     Write-Output "Install development pack ..."
 
-    $temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
+    #$temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
+    $temp="$cachePath\$fname"
     $fname = "php-devel-pack-$revision-$tspart-$vs-$arch.zip"
-    $url = "$baseurl/$fname"
-    Write-Output "Downloading $url ..."
-    Invoke-WebRequest $url -OutFile $temp
+    if (!(Test-Path -Path $temp -PathType Leaf)) {
+        $url = "$baseurl/$fname"
+        Write-Output "Downloading $url ..."
+        Invoke-WebRequest $url -OutFile $temp
+    }
     Expand-Archive $temp "."
     Rename-Item "php-$revision-devel-$vs-$arch" "php-dev"
 }
@@ -91,10 +105,16 @@ if ($deps.Count -gt 0) {
         foreach ($line in ($series.Content -Split "[\r\n]+")) {
             if ($line -match "^$dep") {
                 Write-Output "Install $line ..."
-                $temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
-                $url = "$baseurl/$vs/$arch/$line"
-                Write-Output "Downloading $url ..."
-                Invoke-WebRequest $url -OutFile $temp
+                #$temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
+                $temp="$cachePath\$vs\$arch\$line"
+                if (!(Test-Path -Path "$cachePath\$vs\$arch" -PathType Container)) {
+                    mkdir "$cachePath\$vs\$arch"
+                }
+                if (!(Test-Path -Path $temp -PathType Leaf)) {
+                    $url = "$baseurl/$vs/$arch/$line"
+                    Write-Output "Downloading $url ..."
+                    Invoke-WebRequest $url -OutFile $temp
+                }
                 Expand-Archive $temp "../deps"
                 $installed = $true
                 break

@@ -71,8 +71,8 @@ if (-not (Test-path "php-bin")) {
     Write-Output "Install PHP $revision ..."
 
     #$temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
-    $temp="$cachePath\$fname"
     $fname = "php-$revision-$tspart-$vs-$arch.zip"
+    $temp="$cachePath\$fname"
     if (!(Test-Path -Path $temp -PathType Leaf)) {
         $url = "$baseurl/$fname"
         Write-Output "Downloading $url ..."
@@ -85,8 +85,8 @@ if (-not (Test-Path "php-dev")) {
     Write-Output "Install development pack ..."
 
     #$temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
-    $temp="$cachePath\$fname"
     $fname = "php-devel-pack-$revision-$tspart-$vs-$arch.zip"
+    $temp="$cachePath\$fname"
     if (!(Test-Path -Path $temp -PathType Leaf)) {
         $url = "$baseurl/$fname"
         Write-Output "Downloading $url ..."

@@ -59,7 +59,7 @@ if (-not (Test-Path "php-sdk")) {
     #$temp = New-TemporaryFile | Rename-Item -NewName {$_.Name + ".zip"} -PassThru
     $temp="$cachePath\php-sdk.zip";
     if (!(Test-Path -Path $temp -PathType Leaf)) {
-        $url = "https://github.com/php/php-sdk-binary-tools/releases/download/php-sdk-2.6.0/php-sdk-binary-tools-php-sdk-2.6.0.zip"
+        $url = "https://github.com/php/php-sdk-binary-tools/archive/refs/tags/php-sdk-2.6.0.zip"
         Invoke-WebRequest $url -OutFile $temp
     }
     Expand-Archive $temp -DestinationPath "."

@@ -63,7 +63,7 @@ if (-not (Test-Path "php-sdk")) {
         Invoke-WebRequest $url -OutFile $temp
     }
     Expand-Archive $temp -DestinationPath "."
-    Rename-Item "php-sdk-binary-tools-php-sdk-2.3.0" "php-sdk"
+    Rename-Item "php-sdk-binary-tools-php-sdk-2.6.0" "php-sdk"
 }
 
 $tspart = if ($ts -eq "nts") {"nts-Win32"} else {"Win32"}
